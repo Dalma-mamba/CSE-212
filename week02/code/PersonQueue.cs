@@ -1,31 +1,32 @@
 /// <summary>
-/// A basic implementation of a Queue
+/// A basic implementation of a FIFO queue of people.
 /// </summary>
 public class PersonQueue
 {
-    private readonly List<Person> _queue = new();
+    private readonly Queue<Person> _queue = new();
 
     public int Length => _queue.Count;
 
     /// <summary>
-    /// Add a person to the queue
+    /// Add a person to the back of the queue.
     /// </summary>
     /// <param name="person">The person to add</param>
     public void Enqueue(Person person)
     {
-        _queue.Insert(0, person);
+        _queue.Enqueue(person);
     }
 
+    /// <summary>
+    /// Remove and return the person at the front of the queue.
+    /// </summary>
     public Person Dequeue()
     {
-        var person = _queue[0];
-        _queue.RemoveAt(0);
-        return person;
+        return _queue.Dequeue();
     }
 
     public bool IsEmpty()
     {
-        return Length == 0;
+        return _queue.Count == 0;
     }
 
     public override string ToString()
