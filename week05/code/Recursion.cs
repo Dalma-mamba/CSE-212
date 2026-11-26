@@ -14,8 +14,12 @@ public static class Recursion
     /// </summary>
     public static int SumSquaresRecursive(int n)
     {
-        // TODO Start Problem 1
-        return 0;
+        // Base case: there are no positive integers to add.
+        if (n <= 0)
+            return 0;
+
+        // Add n squared to the sum of all smaller squares.
+        return (n * n) + SumSquaresRecursive(n - 1);
     }
 
     /// <summary>
@@ -39,7 +43,19 @@ public static class Recursion
     /// </summary>
     public static void PermutationsChoose(List<string> results, string letters, int size, string word = "")
     {
-        // TODO Start Problem 2
+        // Base case: the word has reached the requested length.
+        if (word.Length == size)
+        {
+            results.Add(word);
+            return;
+        }
+
+        // Choose each remaining letter, then recursively build the rest.
+        for (int i = 0; i < letters.Length; i++)
+        {
+            string remainingLetters = letters.Remove(i, 1);
+            PermutationsChoose(results, remainingLetters, size, word + letters[i]);
+        }
     }
 
     /// <summary>
@@ -96,10 +112,18 @@ public static class Recursion
         if (s == 3)
             return 4;
 
-        // TODO Start Problem 3
+        // Create the memoization dictionary on the first call.
+        remember ??= new Dictionary<int, decimal>();
 
-        // Solve using recursion
-        decimal ways = CountWaysToClimb(s - 1) + CountWaysToClimb(s - 2) + CountWaysToClimb(s - 3);
+        // Return a previously calculated result when available.
+        if (remember.TryGetValue(s, out decimal rememberedWays))
+            return rememberedWays;
+
+        // Solve the three smaller stair problems and remember the result.
+        decimal ways = CountWaysToClimb(s - 1, remember)
+                     + CountWaysToClimb(s - 2, remember)
+                     + CountWaysToClimb(s - 3, remember);
+        remember[s] = ways;
         return ways;
     }
 
@@ -118,7 +142,19 @@ public static class Recursion
     /// </summary>
     public static void WildcardBinary(string pattern, List<string> results)
     {
-        // TODO Start Problem 4
+        // When there are no wildcards left, this is one complete result.
+        int wildcardIndex = pattern.IndexOf('*');
+        if (wildcardIndex == -1)
+        {
+            results.Add(pattern);
+            return;
+        }
+
+        // Replace the first wildcard with 0 and 1 in separate recursive calls.
+        string beforeWildcard = pattern[..wildcardIndex];
+        string afterWildcard = pattern[(wildcardIndex + 1)..];
+        WildcardBinary(beforeWildcard + "0" + afterWildcard, results);
+        WildcardBinary(beforeWildcard + "1" + afterWildcard, results);
     }
 
     /// <summary>
@@ -133,11 +169,28 @@ public static class Recursion
             currPath = new List<ValueTuple<int, int>>();
         }
         
-        // currPath.Add((1,2)); // Use this syntax to add to the current path
+        // Add the current square to the path before checking the destination.
+        currPath.Add((x, y));
 
-        // TODO Start Problem 5
-        // ADD CODE HERE
+        if (maze.IsEnd(x, y))
+        {
+            results.Add(currPath.AsString());
+        }
+        else
+        {
+            // Try each neighboring square. IsValidMove prevents walls,
+            // out-of-bounds moves, and revisiting a square in this path.
+            if (maze.IsValidMove(currPath, x + 1, y))
+                SolveMaze(results, maze, x + 1, y, currPath);
+            if (maze.IsValidMove(currPath, x, y + 1))
+                SolveMaze(results, maze, x, y + 1, currPath);
+            if (maze.IsValidMove(currPath, x - 1, y))
+                SolveMaze(results, maze, x - 1, y, currPath);
+            if (maze.IsValidMove(currPath, x, y - 1))
+                SolveMaze(results, maze, x, y - 1, currPath);
+        }
 
-        // results.Add(currPath.AsString()); // Use this to add your path to the results array keeping track of complete maze solutions when you find the solution.
+        // Backtrack so the caller can explore a different route.
+        currPath.RemoveAt(currPath.Count - 1);
     }
 }
